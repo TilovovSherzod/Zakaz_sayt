@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Ombor - SAVDO{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Ombor</h1>
+    
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Qidirish va filtrlash</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label for="qidiruv" class="form-label">Qidirish</label>
+                    <input type="text" class="form-control" id="qidiruv" name="qidiruv" placeholder="Maxsulot nomi yoki barcode..." value="{{ request.GET.qidiruv|default:'' }}">
+                </div>
+                <div class="col-md-5">
+                    <label for="kategoriya" class="form-label">Kategoriya</label>
+                    <select class="form-select" id="kategoriya" name="kategoriya">
+                        <option value="">Barcha kategoriyalar</option>
+                        {% for kategoriya in kategoriyalar %}
+                        <option value="{{ kategoriya.id }}" {% if request.GET.kategoriya == kategoriya.id|stringformat:"i" %}selected{% endif %}>{{ kategoriya.nomi }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Qidirish
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Ombor harakatlari</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <a href="{% url 'ombor_kirim' %}" class="btn btn-success w-100">
+                                <i class="fas fa-plus-circle me-2"></i>Kirim
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="{% url 'ombor_chiqim' %}" class="btn btn-warning w-100">
+                                <i class="fas fa-minus-circle me-2"></i>Chiqim
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="{% url 'ombor_inventarizatsiya' %}" class="btn btn-info w-100">
+                                <i class="fas fa-clipboard-check me-2"></i>Inventarizatsiya
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Ombordagi maxsulotlar</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Maxsulot</th>
+                            <th>Kategoriya</th>
+                            <th>Barcode</th>
+                            <th>Narx</th>
+                            <th>Miqdor</th>
+                            <th>Holat</th>
+                            <th>Harakatlar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for maxsulot in maxsulotlar %}
+                        <tr>
+                            <td>{{ maxsulot.nomi }}</td>
+                            <td>{{ maxsulot.kategoriya.nomi }}</td>
+                            <td>{{ maxsulot.barcode|default:"-" }}</td>
+                            <td>{{ maxsulot.chegirma_narx|default:maxsulot.narx|floatformat:2 }} so'm</td>
+                            <td>{{ maxsulot.miqdor }}</td>
+                            <td>
+                                {% if maxsulot.miqdor == 0 %}
+                                <span class="badge bg-danger">Tugagan</span>
+                                {% elif maxsulot.miqdor < 10 %}
+                                <span class="badge bg-warning">Tugayapti</span>
+                                {% else %}
+                                <span class="badge bg-success">Yetarli</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'ombor_kirim' %}?maxsulot_id={{ maxsulot.id }}" class="btn btn-success">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                    <a href="{% url 'ombor_chiqim' %}?maxsulot_id={{ maxsulot.id }}" class="btn btn-warning">
+                                        <i class="fas fa-minus"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Maxsulotlar topilmadi</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

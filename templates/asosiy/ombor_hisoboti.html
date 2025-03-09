@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block title %}Ombor hisoboti - SAVDO{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Ombor hisoboti</h1>
+    
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Qidirish va filtrlash</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <label for="qidiruv" class="form-label">Qidirish</label>
+                    <input type="text" class="form-control" id="qidiruv" name="qidiruv" placeholder="Maxsulot nomi yoki barcode..." value="{{ request.GET.qidiruv|default:'' }}">
+                </div>
+                <div class="col-md-5">
+                    <label for="kategoriya" class="form-label">Kategoriya</label>
+                    <select class="form-select" id="kategoriya" name="kategoriya">
+                        <option value="">Barcha kategoriyalar</option>
+                        {% for kategoriya in kategoriyalar %}
+                        <option value="{{ kategoriya.id }}" {% if request.GET.kategoriya == kategoriya.id|stringformat:"i" %}selected{% endif %}>{{ kategoriya.nomi }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Qidirish
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm h-100 bg-light">
+                <div class="card-body text-center">
+                    <i class="fas fa-boxes fa-3x text-primary mb-3"></i>
+                    <h5>Jami maxsulotlar</h5>
+                    <h3>{{ jami_maxsulotlar }}</h3>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm h-100 bg-light">
+                <div class="card-body text-center">
+                    <i class="fas fa-money-bill-wave fa-3x text-success mb-3"></i>
+                    <h5>Jami qiymat</h5>
+                    <h3>{{ jami_qiymat|floatformat:2 }} so'm</h3>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm h-100 bg-light">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <h5>Tugayotgan maxsulotlar</h5>
+                    <h3>{{ tugayotgan_maxsulotlar.count }}</h3>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm h-100 bg-light">
+                <div class="card-body text-center">
+                    <i class="fas fa-times-circle fa-3x text-danger mb-3"></i>
+                    <h5>Tugagan maxsulotlar</h5>
+                    <h3>{{ tugagan_maxsulotlar.count }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Ombordagi maxsulotlar</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Maxsulot</th>
+                            <th>Kategoriya</th>
+                            <th>Barcode</th>
+                            <th>Narx</th>
+                            <th>Miqdor</th>
+                            <th>Jami qiymat</th>
+                            <th>Holat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for maxsulot in maxsulotlar %}
+                        <tr>
+                            <td>{{ maxsulot.nomi }}</td>
+                            <td>{{ maxsulot.kategoriya.nomi }}</td>
+                            <td>{{ maxsulot.barcode|default:"-" }}</td>
+                            <td>{{ maxsulot.chegirma_narx|default:maxsulot.narx|floatformat:2 }} so'm</td>
+                            <td>{{ maxsulot.miqdor }}</td>
+                            <td>{{ maxsulot.miqdor|multiply:maxsulot.chegirma_narx|default:maxsulot.narx|floatformat:2 }} so'm</td>
+                            <td>
+                                {% if maxsulot.miqdor == 0 %}
+                                <span class="badge bg-danger">Tugagan</span>
+                                {% elif maxsulot.miqdor < 10 %}
+                                <span class="badge bg-warning">Tugayapti</span>
+                                {% else %}
+                                <span class="badge bg-success">Yetarli</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">Maxsulotlar topilmadi</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">Tugayotgan maxsulotlar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Maxsulot</th>
+                                    <th>Kategoriya</th>
+                                    <th>Miqdor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for maxsulot in tugayotgan_maxsulotlar %}
+                                <tr>
+                                    <td>{{ maxsulot.nomi }}</td>
+                                    <td>{{ maxsulot.kategoriya.nomi }}</td>
+                                    <td>{{ maxsulot.miqdor }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">Tugayotgan maxsulotlar yo'q</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Tugagan maxsulotlar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Maxsulot</th>
+                                    <th>Kategoriya</th>
+                                    <th>Narx</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for maxsulot in tugagan_maxsulotlar %}
+                                <tr>
+                                    <td>{{ maxsulot.nomi }}</td>
+                                    <td>{{ maxsulot.kategoriya.nomi }}</td>
+                                    <td>{{ maxsulot.chegirma_narx|default:maxsulot.narx|floatformat:2 }} so'm</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">Tugagan maxsulotlar yo'q</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mb-4">
+        <a href="{% url 'hisobotlar' %}" class="btn btn-secondary me-2">
+            <i class="fas fa-arrow-left me-2"></i>Hisobotlarga qaytish
+        </a>
+        <a href="{% url 'ombor' %}" class="btn btn-primary">
+            <i class="fas fa-warehouse me-2"></i>Omborga o'tish
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Maxsulot qiymatini hisoblash uchun filter
+    document.addEventListener('DOMContentLoaded', function() {
+        // Bu yerda JavaScript kodlari bo'lishi mumkin
+    });
+</script>
+{% endblock %}
+

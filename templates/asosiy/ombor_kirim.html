@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Ombor kirim - SAVDO{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Ombor kirim</h1>
+    
+    <div class="row">
+        <div class="col-lg-6 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Kirim ma'lumotlari</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="maxsulot_id" class="form-label">Maxsulot</label>
+                            <select class="form-select" id="maxsulot_id" name="maxsulot_id" required>
+                                <option value="">Maxsulotni tanlang</option>
+                                {% for maxsulot in maxsulotlar %}
+                                <option value="{{ maxsulot.id }}" {% if request.GET.maxsulot_id == maxsulot.id|stringformat:"i" %}selected{% endif %}>
+                                    {{ maxsulot.nomi }} ({{ maxsulot.kategoriya.nomi }}) - {{ maxsulot.miqdor }} dona
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="miqdor" class="form-label">Miqdor</label>
+                            <input type="number" class="form-control" id="miqdor" name="miqdor" min="1" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="izoh" class="form-label">Izoh</label>
+                            <textarea class="form-control" id="izoh" name="izoh" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-2"></i>Saqlash
+                            </button>
+                            <a href="{% url 'ombor' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Orqaga
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

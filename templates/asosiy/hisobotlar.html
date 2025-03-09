@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Hisobotlar - SAVDO{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Hisobotlar</h1>
+    
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-chart-line me-2 text-primary"></i>Savdo hisoboti</h5>
+                    <p class="card-text">Savdo statistikasi, sana bo'yicha savdo hajmi, kassirlar bo'yicha savdo va boshqa ma'lumotlar.</p>
+                    <a href="{% url 'savdo_hisoboti' %}" class="btn btn-primary">Hisobotni ko'rish</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-warehouse me-2 text-success"></i>Ombor hisoboti</h5>
+                    <p class="card-text">Ombordagi maxsulotlar, tugayotgan maxsulotlar, ombor harakatlari va boshqa ma'lumotlar.</p>
+                    <a href="{% url 'ombor_hisoboti' %}" class="btn btn-success">Hisobotni ko'rish</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Tezkor harakatlar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{% url 'kassa' %}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-cash-register me-2"></i>Kassa
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{% url 'ombor' %}" class="btn btn-outline-success w-100">
+                                <i class="fas fa-warehouse me-2"></i>Ombor
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{% url 'ombor_kirim' %}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-plus-circle me-2"></i>Ombor kirim
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <a href="{% url 'ombor_chiqim' %}" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-minus-circle me-2"></i>Ombor chiqim
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

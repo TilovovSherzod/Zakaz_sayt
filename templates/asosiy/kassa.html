@@ -1,0 +1,448 @@
+{% extends 'base.html' %}
+
+{% block title %}Kassa - SAVDO{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Kassa</h1>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Maxsulotlar</h5>
+                    <div>
+                        <button type="button" class="btn btn-light btn-sm" id="clearScannerBtn">
+                            <i class="fas fa-eraser me-1"></i> Tozalash
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <label for="barcodeInput" class="form-label">Barcode skaner</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="barcodeInput" placeholder="Barcode skanerlang yoki kiriting...">
+                            <button class="btn btn-primary" type="button" id="scanButton">
+                                <i class="fas fa-barcode me-1"></i> Qo'shish
+                            </button>
+                        </div>
+                        <small class="text-muted">Barcode skanerdan o'tkazilganda avtomatik qo'shiladi</small>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table" id="productsTable">
+                            <thead>
+                                <tr>
+                                    <th>Maxsulot</th>
+                                    <th>Narx</th>
+                                    <th>Miqdor</th>
+                                    <th>Jami</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in savdo_maxsulotlari %}
+                                <tr data-id="{{ item.maxsulot_id }}">
+                                    <td>{{ item.nomi }}</td>
+                                    <td>{{ item.narx }} so'm</td>
+                                    <td>
+                                        <div class="input-group input-group-sm" style="width: 100px;">
+                                            <button class="btn btn-outline-secondary decrement-btn" type="button">-</button>
+                                            <input type="number" class="form-control text-center quantity-input" value="{{ item.miqdor }}" min="1">
+                                            <button class="btn btn-outline-secondary increment-btn" type="button">+</button>
+                                        </div>
+                                    </td>
+                                    <td>{{ item.jami_narx }} so'm</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-danger remove-item">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Savdo ma'lumotlari</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h4 class="text-center">Jami: <span id="totalAmount">{{ jami_narx }}</span> so'm</h4>
+                    </div>
+                    
+                    <form id="checkoutForm" method="post" action="{% url 'savdo_yaratish' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="customerName" class="form-label">Mijoz ismi (ixtiyoriy)</label>
+                            <input type="text" class="form-control" id="customerName" name="mijoz_ismi">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">To'lov usuli</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tolov_usuli" id="cashPayment" value="naqd" checked>
+                                <label class="form-check-label" for="cashPayment">
+                                    <i class="fas fa-money-bill-wave me-2"></i>Naqd pul
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tolov_usuli" id="cardPayment" value="karta">
+                                <label class="form-check-label" for="cardPayment">
+                                    <i class="fas fa-credit-card me-2"></i>Karta orqali
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success w-100" id="checkoutBtn" {% if not savdo_maxsulotlari %}disabled{% endif %}>
+                            <i class="fas fa-cash-register me-2"></i>Savdoni yakunlash
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Tezkor tugmalar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 mb-2">
+                            <button class="btn btn-outline-primary w-100" id="clearAllBtn">
+                                <i class="fas fa-trash me-1"></i> Tozalash
+                            </button>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <a href="{% url 'ombor' %}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-warehouse me-1"></i> Ombor
+                            </a>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <a href="{% url 'hisobotlar' %}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-chart-bar me-1"></i> Hisobotlar
+                            </a>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <a href="{% url 'asosiy' %}" class="btn btn-outline-dark w-100">
+                                <i class="fas fa-home me-1"></i> Asosiy
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Xatolik modali -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Xatolik</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="errorMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yopish</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tozalash modali -->
+<div class="modal fade" id="clearModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">Diqqat</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Haqiqatan ham barcha maxsulotlarni o'chirib tashlamoqchimisiz?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Yo'q</button>
+                <button type="button" class="btn btn-danger" id="confirmClearBtn">Ha, tozalash</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const barcodeInput = document.getElementById('barcodeInput');
+        const scanButton = document.getElementById('scanButton');
+        const clearScannerBtn = document.getElementById('clearScannerBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const confirmClearBtn = document.getElementById('confirmClearBtn');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const totalAmount = document.getElementById('totalAmount');
+        
+        // Barcode skanerdan o'qish
+        barcodeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                scanBarcode();
+            }
+        });
+        
+        // Qo'shish tugmasi
+        scanButton.addEventListener('click', function() {
+            scanBarcode();
+        });
+        
+        // Skaner maydonini tozalash
+        clearScannerBtn.addEventListener('click', function() {
+            barcodeInput.value = '';
+            barcodeInput.focus();
+        });
+        
+        // Barcha maxsulotlarni tozalash
+        clearAllBtn.addEventListener('click', function() {
+            const productsTable = document.getElementById('productsTable');
+            if (productsTable.querySelector('tbody').children.length > 0) {
+                new bootstrap.Modal(document.getElementById('clearModal')).show();
+            }
+        });
+        
+        // Tozalashni tasdiqlash
+        confirmClearBtn.addEventListener('click', function() {
+            clearAllProducts();
+            bootstrap.Modal.getInstance(document.getElementById('clearModal')).hide();
+        });
+        
+        // Miqdorni kamaytirish tugmalari
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('decrement-btn')) {
+                const input = e.target.nextElementSibling;
+                const currentValue = parseInt(input.value);
+                if (currentValue > 1) {
+                    input.value = currentValue - 1;
+                    updateProductQuantity(e.target.closest('tr'));
+                }
+            }
+        });
+        
+        // Miqdorni oshirish tugmalari
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('increment-btn')) {
+                const input = e.target.previousElementSibling;
+                input.value = parseInt(input.value) + 1;
+                updateProductQuantity(e.target.closest('tr'));
+            }
+        });
+        
+        // Miqdor o'zgartirilganda
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('quantity-input')) {
+                if (parseInt(e.target.value) < 1) {
+                    e.target.value = 1;
+                }
+                updateProductQuantity(e.target.closest('tr'));
+            }
+        });
+        
+        // Maxsulotni o'chirish tugmalari
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-item') || e.target.parentElement.classList.contains('remove-item')) {
+                const row = e.target.closest('tr');
+                removeProduct(row);
+            }
+        });
+        
+        // Barcode skanerlash
+        function scanBarcode() {
+            const barcode = barcodeInput.value.trim();
+            if (!barcode) return;
+            
+            fetch('{% url "barcode_qidirish" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    barcode: barcode
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateProductsTable(data.savdo_maxsulotlari);
+                    totalAmount.textContent = data.jami_narx;
+                    checkoutBtn.disabled = false;
+                } else {
+                    showError(data.error);
+                }
+                barcodeInput.value = '';
+                barcodeInput.focus();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.');
+                barcodeInput.value = '';
+                barcodeInput.focus();
+            });
+        }
+        
+        // Maxsulotlar jadvalini yangilash
+        function updateProductsTable(products) {
+            const tbody = document.querySelector('#productsTable tbody');
+            tbody.innerHTML = '';
+            
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                row.setAttribute('data-id', product.maxsulot_id);
+                
+                row.innerHTML = `
+                    <td>${product.nomi}</td>
+                    <td>${product.narx} so'm</td>
+                    <td>
+                        <div class="input-group input-group-sm" style="width: 100px;">
+                            <button class="btn btn-outline-secondary decrement-btn" type="button">-</button>
+                            <input type="number" class="form-control text-center quantity-input" value="${product.miqdor}" min="1">
+                            <button class="btn btn-outline-secondary increment-btn" type="button">+</button>
+                        </div>
+                    </td>
+                    <td>${product.jami_narx} so'm</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger remove-item">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Maxsulot miqdorini yangilash
+        function updateProductQuantity(row) {
+            const productId = row.getAttribute('data-id');
+            const quantity = parseInt(row.querySelector('.quantity-input').value);
+            
+            fetch('{% url "barcode_qidirish" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    quantity: quantity,
+                    update: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateProductsTable(data.savdo_maxsulotlari);
+                    totalAmount.textContent = data.jami_narx;
+                } else {
+                    showError(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.');
+            });
+        }
+        
+        // Maxsulotni o'chirish
+        function removeProduct(row) {
+            const productId = row.getAttribute('data-id');
+            
+            fetch('{% url "barcode_qidirish" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    remove: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateProductsTable(data.savdo_maxsulotlari);
+                    totalAmount.textContent = data.jami_narx;
+                    checkoutBtn.disabled = data.savdo_maxsulotlari.length === 0;
+                } else {
+                    showError(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.');
+            });
+        }
+        
+        // Barcha maxsulotlarni tozalash
+        function clearAllProducts() {
+            fetch('{% url "barcode_qidirish" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    clear_all: true
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateProductsTable([]);
+                    totalAmount.textContent = '0';
+                    checkoutBtn.disabled = true;
+                } else {
+                    showError(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.');
+            });
+        }
+        
+        // Xatolikni ko'rsatish
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            new bootstrap.Modal(document.getElementById('errorModal')).show();
+        }
+        
+        // CSRF token olish funksiyasi
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Sahifa yuklanganda barcode maydoniga fokus qilish
+        barcodeInput.focus();
+    });
+</script>
+{% endblock %}
+

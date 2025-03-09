@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Savdo hisoboti - SAVDO{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Savdo hisoboti</h1>
+    
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Sana oralig'ini tanlang</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="boshlanish_sana" class="form-label">Boshlanish sanasi</label>
+                    <input type="date" class="form-control" id="boshlanish_sana" name="boshlanish_sana" value="{{ boshlanish_sana }}">
+                </div>
+                <div class="col-md-4">
+                    <label for="tugash_sana" class="form-label">Tugash sanasi</label>
+                    <input type="date" class="form-control" id="tugash_sana" name="tugash_sana" value="{{ tugash_sana }}">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Qidirish
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Umumiy ma'lumotlar</h5>
+                </div>
+                <div class="card-body">
+                    <h3 class="text-center mb-4">{{ jami_savdo|floatformat:2 }} so'm</h3>
+                    <p class="mb-2"><strong>Savdolar soni:</strong> {{ savdolar.count }}</p>
+                    <p class="mb-2"><strong>O'rtacha savdo:</strong> {% if savdolar.count > 0 %}{{ jami_savdo|floatformat:2|default:0|divisibleby:savdolar.count }} so'm{% else %}0 so'm{% endif %}</p>
+                    <p class="mb-2"><strong>Sana oralig'i:</strong> {{ boshlanish_sana }} - {{ tugash_sana }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">To'lov usuli bo'yicha</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for item in tolov_usuli_statistika %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {% if item.tolov_usuli == 'naqd' %}
+                            <span><i class="fas fa-money-bill-wave me-2 text-success"></i>Naqd pul</span>
+                            {% else %}
+                            <span><i class="fas fa-credit-card me-2 text-primary"></i>Karta orqali</span>
+                            {% endif %}
+                            <div>
+                                <span class="badge bg-primary rounded-pill me-2">{{ item.soni }}</span>
+                                <span class="fw-bold">{{ item.jami|floatformat:2 }} so'm</span>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center">Ma'lumot yo'q</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0">Kassir bo'yicha</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for item in kassir_statistika %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-user me-2"></i>{{ item.kassir__username }}</span>
+                            <div>
+                                <span class="badge bg-primary rounded-pill me-2">{{ item.soni }}</span>
+                                <span class="fw-bold">{{ item.jami|floatformat:2 }} so'm</span>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center">Ma'lumot yo'q</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Eng ko'p sotilgan maxsulotlar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Maxsulot</th>
+                                    <th>Miqdor</th>
+                                    <th>Jami narx</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in eng_kop_sotilgan %}
+                                <tr>
+                                    <td>{{ item.maxsulot__nomi }}</td>
+                                    <td>{{ item.jami_miqdor }}</td>
+                                    <td>{{ item.jami_narx|floatformat:2 }} so'm</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">Ma'lumot yo'q</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Savdolar ro'yxati</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Sana</th>
+                                    <th>Kassir</th>
+                                    <th>Mijoz</th>
+                                    <th>Jami narx</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for savdo in savdolar %}
+                                <tr>
+                                    <td>{{ savdo.id }}</td>
+                                    <td>{{ savdo.yaratilgan_sana|date:"d.m.Y H:i" }}</td>
+                                    <td>{{ savdo.kassir.username }}</td>
+                                    <td>{{ savdo.mijoz_ismi|default:"-" }}</td>
+                                    <td>{{ savdo.jami_narx|floatformat:2 }} so'm</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Ma'lumot yo'q</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center mb-4">
+        <a href="{% url 'hisobotlar' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Hisobotlarga qaytish
+        </a>
+    </div>
+</div>
+{% endblock %}
+
